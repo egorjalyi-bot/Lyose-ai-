@@ -1,0 +1,1890 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>LunaSpaceLyos 1.9</title>
+
+<style>
+:root{
+  --font:Arial,sans-serif;
+  --bg:#171020;
+  --side:#100b16;
+  --panel:#21172b;
+  --input:#281b36;
+  --hover:#35223f;
+  --border:#493254;
+  --text:#f8f2ff;
+  --muted:#aaa0b5;
+  --accent:#9b62ff;
+}
+
+*{
+  box-sizing:border-box;
+}
+
+html,body{
+  width:100%;
+  height:100%;
+  margin:0;
+  overflow:hidden;
+}
+
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--font);
+  transition:.2s;
+}
+
+button,input,textarea,select{
+  font-family:inherit;
+}
+
+button{
+  color:inherit;
+}
+
+.app{
+  display:flex;
+  height:100%;
+  width:100%;
+}
+
+/* SIDEBAR */
+
+.sidebar{
+  width:270px;
+  flex-shrink:0;
+  height:100%;
+  padding:12px;
+  background:var(--side);
+  border-right:1px solid var(--border);
+  display:flex;
+  flex-direction:column;
+  z-index:100;
+}
+
+.logo{
+  font-size:18px;
+  font-weight:700;
+  padding:10px;
+}
+
+.logo small{
+  display:block;
+  margin-top:4px;
+  color:var(--muted);
+  font-size:11px;
+  font-weight:400;
+}
+
+.btn{
+  border:1px solid var(--border);
+  background:transparent;
+  border-radius:10px;
+  padding:11px;
+  cursor:pointer;
+}
+
+.btn:hover{
+  background:var(--hover);
+}
+
+.new-chat{
+  text-align:left;
+}
+
+.history-title{
+  margin:18px 8px 7px;
+  color:var(--muted);
+  font-size:12px;
+}
+
+.history{
+  flex:1;
+  overflow:auto;
+}
+
+.chat-item{
+  width:100%;
+  border:0;
+  background:transparent;
+  text-align:left;
+  padding:10px;
+  border-radius:8px;
+  cursor:pointer;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.chat-item:hover,
+.chat-item.active{
+  background:var(--hover);
+}
+
+/* MAIN */
+
+.main{
+  flex:1;
+  min-width:0;
+  height:100%;
+  position:relative;
+  display:flex;
+  flex-direction:column;
+}
+
+.header{
+  height:58px;
+  flex-shrink:0;
+  display:flex;
+  align-items:center;
+  padding:0 16px;
+  border-bottom:1px solid var(--border);
+}
+
+.menu{
+  display:none;
+  width:40px;
+  height:40px;
+  border:0;
+  background:transparent;
+  border-radius:9px;
+  font-size:22px;
+  cursor:pointer;
+}
+
+.title{
+  font-weight:700;
+}
+
+.version{
+  margin-left:8px;
+  color:var(--muted);
+  font-size:12px;
+}
+
+/* CHAT */
+
+.chat{
+  flex:1;
+  overflow-y:auto;
+  overflow-x:hidden;
+  padding:25px 12px 160px;
+}
+
+.messages{
+  width:min(850px,100%);
+  margin:auto;
+}
+
+.welcome{
+  min-height:55vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  text-align:center;
+}
+
+.welcome h1{
+  font-size:30px;
+  font-weight:500;
+  margin:0 0 8px;
+}
+
+.welcome p{
+  color:var(--muted);
+}
+
+.message{
+  margin:25px 0;
+}
+
+.userBubble{
+  display:inline-block;
+  max-width:90%;
+  padding:11px 14px;
+  background:var(--input);
+  border-radius:15px;
+  overflow-wrap:anywhere;
+}
+
+.messageText{
+  line-height:1.65;
+  white-space:pre-wrap;
+  overflow-wrap:anywhere;
+}
+
+.actions{
+  display:flex;
+  gap:5px;
+  margin-top:6px;
+}
+
+.action{
+  border:0;
+  background:transparent;
+  color:var(--muted);
+  padding:5px 7px;
+  cursor:pointer;
+}
+
+/* COMPOSER */
+
+.composer-area{
+  position:absolute;
+  bottom:0;
+  left:0;
+  right:0;
+  padding:10px 12px 16px;
+  background:linear-gradient(to top,var(--bg) 70%,transparent);
+}
+
+.composer{
+  width:min(850px,100%);
+  margin:auto;
+}
+
+.input-box{
+  width:100%;
+  display:flex;
+  align-items:flex-end;
+  padding:7px;
+  border:1px solid var(--border);
+  border-radius:18px;
+  background:var(--input);
+}
+
+.icon{
+  width:38px;
+  height:38px;
+  flex:0 0 38px;
+  border:0;
+  border-radius:9px;
+  background:transparent;
+  cursor:pointer;
+}
+
+.icon:hover{
+  background:var(--hover);
+}
+
+#input{
+  width:100%;
+  min-width:0;
+  min-height:38px;
+  max-height:140px;
+  resize:none;
+  overflow-x:hidden;
+  overflow-y:auto;
+  border:0;
+  outline:0;
+  background:transparent;
+  color:var(--text);
+  padding:9px 5px;
+  font-size:15px;
+  line-height:20px;
+}
+
+.send{
+  background:var(--text);
+  color:var(--bg);
+}
+
+.disclaimer{
+  text-align:center;
+  color:var(--muted);
+  font-size:10px;
+  margin-top:6px;
+}
+
+/* SETTINGS */
+
+.overlay{
+  position:fixed;
+  inset:0;
+  z-index:1000;
+  display:none;
+  justify-content:center;
+  align-items:center;
+  padding:14px;
+  background:rgba(0,0,0,.7);
+}
+
+.overlay.open{
+  display:flex;
+}
+
+.settings{
+  width:min(600px,100%);
+  max-height:92vh;
+  overflow:auto;
+  padding:18px;
+  border:1px solid var(--border);
+  border-radius:18px;
+  background:var(--side);
+}
+
+.settingsHeader{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:8px;
+}
+
+.settingsHeader h2{
+  margin:0;
+}
+
+.close{
+  width:38px;
+  height:38px;
+  border:0;
+  border-radius:9px;
+  background:transparent;
+  cursor:pointer;
+}
+
+.setting{
+  padding:16px 0;
+  border-top:1px solid var(--border);
+}
+
+.description{
+  margin-top:5px;
+  color:var(--muted);
+  font-size:12px;
+  line-height:1.5;
+}
+
+select{
+  width:100%;
+  margin-top:9px;
+  padding:10px;
+  border:1px solid var(--border);
+  border-radius:9px;
+  background:var(--input);
+  color:var(--text);
+  outline:0;
+}
+
+.premiumBox{
+  margin-top:12px;
+  padding:14px;
+  border-radius:12px;
+  background:var(--input);
+  border:1px solid var(--border);
+}
+
+.stars{
+  margin-top:7px;
+  color:#ffd45c;
+  font-weight:700;
+}
+
+.premiumButton{
+  width:100%;
+  margin-top:9px;
+  padding:10px;
+  border:0;
+  border-radius:9px;
+  background:var(--accent);
+  cursor:pointer;
+}
+
+.premiumButton:disabled{
+  opacity:.45;
+}
+
+/* GIFT */
+
+.giftOverlay{
+  position:fixed;
+  inset:0;
+  z-index:3000;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  background:rgba(0,0,0,.82);
+}
+
+.giftOverlay.show{
+  display:flex;
+}
+
+.giftContent{
+  text-align:center;
+  animation:appear .7s ease;
+}
+
+.giftTitle{
+  font-size:26px;
+  font-weight:800;
+  margin-bottom:20px;
+}
+
+.gift{
+  position:relative;
+  width:150px;
+  height:120px;
+  margin:auto;
+  animation:giftShake 1s infinite;
+}
+
+.giftBody{
+  position:absolute;
+  bottom:0;
+  width:150px;
+  height:90px;
+  border-radius:12px;
+  background:#e84b63;
+}
+
+.giftBody:before{
+  content:"";
+  position:absolute;
+  left:60px;
+  width:30px;
+  height:100%;
+  background:#ffd45c;
+}
+
+.giftBody:after{
+  content:"";
+  position:absolute;
+  top:32px;
+  width:100%;
+  height:25px;
+  background:#ffd45c;
+}
+
+.giftLid{
+  position:absolute;
+  z-index:3;
+  top:0;
+  left:-7px;
+  width:164px;
+  height:35px;
+  border-radius:9px;
+  background:#f35b73;
+  animation:lidOpen 2s forwards;
+  transform-origin:left bottom;
+}
+
+.diamond{
+  position:absolute;
+  z-index:5;
+  left:50%;
+  top:35px;
+  transform:translateX(-50%);
+  font-size:55px;
+  opacity:0;
+  animation:diamondFly 2s 1s forwards;
+}
+
+.giftText{
+  margin-top:35px;
+  font-size:16px;
+}
+
+.skip{
+  margin-top:18px;
+  padding:9px 18px;
+  border:1px solid var(--border);
+  border-radius:9px;
+  background:var(--panel);
+  cursor:pointer;
+}
+
+@keyframes giftShake{
+  0%,100%{transform:rotate(0)}
+  25%{transform:rotate(-5deg)}
+  75%{transform:rotate(5deg)}
+}
+
+@keyframes lidOpen{
+  from{transform:rotate(0)}
+  to{transform:rotate(-35deg) translate(-15px,-30px)}
+}
+
+@keyframes diamondFly{
+  0%{
+    opacity:0;
+    transform:translate(-50%,50px) scale(.3);
+  }
+  45%{
+    opacity:1;
+    transform:translate(-50%,-20px) scale(1.3);
+  }
+  100%{
+    opacity:1;
+    transform:translate(-50%,-90px) scale(1);
+  }
+}
+
+@keyframes appear{
+  from{
+    opacity:0;
+    transform:scale(.8);
+  }
+  to{
+    opacity:1;
+    transform:scale(1);
+  }
+}
+
+/* MOBILE */
+
+@media(max-width:700px){
+
+  .sidebar{
+    position:fixed;
+    left:0;
+    top:0;
+    bottom:0;
+    transform:translateX(-105%);
+    transition:.2s;
+    box-shadow:10px 0 30px rgba(0,0,0,.5);
+  }
+
+  .sidebar.open{
+    transform:translateX(0);
+  }
+
+  .menu{
+    display:block;
+    margin-right:5px;
+  }
+
+  .version{
+    display:none;
+  }
+
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+<aside class="sidebar" id="sidebar">
+
+  <div class="logo">
+    LunaSpaceLyos
+    <small>Lyos 1.9 • Rocket</small>
+  </div>
+
+  <button class="btn new-chat" id="newChat">
+    ＋ Новый чат
+  </button>
+
+  <div class="history-title" id="historyTitle">
+    Чаты
+  </div>
+
+  <div class="history" id="history"></div>
+
+  <button class="btn" id="settingsButton">
+    ⚙️ Настройки
+  </button>
+
+</aside>
+
+
+<main class="main">
+
+<header class="header">
+
+  <button class="menu" id="menu">
+    ☰
+  </button>
+
+  <div class="title">
+    LunaSpaceLyos
+  </div>
+
+  <div class="version">
+    Lyos 1.9 • MAX UPDATE
+  </div>
+
+</header>
+
+
+<section class="chat" id="chat">
+  <div class="messages" id="messages"></div>
+</section>
+
+
+<div class="composer-area">
+
+  <div class="composer">
+
+    <div class="input-box">
+
+      <button class="icon">
+        ＋
+      </button>
+
+      <textarea
+        id="input"
+        rows="1"
+        placeholder="Пиши..."
+      ></textarea>
+
+      <button
+        class="icon send"
+        id="send"
+      >
+        ↑
+      </button>
+
+    </div>
+
+    <div class="disclaimer">
+      LunaSpaceLyos • Lyos 1.9
+    </div>
+
+  </div>
+
+</div>
+
+</main>
+</div>
+
+
+<!-- SETTINGS -->
+
+<div class="overlay" id="overlay">
+
+<div class="settings">
+
+<div class="settingsHeader">
+
+<h2>⚙️ Настройки</h2>
+
+<button class="close" id="closeSettings">
+✕
+</button>
+
+</div>
+
+
+<div class="setting">
+
+<b>💎 Premium & ⭐ LunaStars</b>
+
+<div class="description">
+Premium, звёзды и глобальная раздача Premium.
+</div>
+
+<div class="premiumBox">
+
+<div id="premiumStatus">
+💎 Premium: нет
+</div>
+
+<div class="stars" id="stars">
+⭐ 0
+</div>
+
+<button
+class="premiumButton"
+id="buyPremium"
+>
+💎 Купить Premium — 10 000 ⭐
+</button>
+
+<button
+class="premiumButton"
+id="claimGift"
+>
+🎁 Получить Premium на 5 дней
+</button>
+
+<button
+class="premiumButton"
+id="giveAll"
+style="display:none"
+>
+👑 Подарить Premium всем
+</button>
+
+</div>
+
+</div>
+
+
+<div class="setting">
+
+<b>🌐 Язык</b>
+
+<select id="language">
+
+<option value="ru">Русский</option>
+<option value="en">English</option>
+<option value="uk">Українська</option>
+<option value="de">Deutsch</option>
+<option value="es">Español</option>
+
+</select>
+
+</div>
+
+
+<div class="setting">
+
+<b>🔤 Шрифт</b>
+
+<div class="description">
+Шрифт применяется ко всему приложению сразу.
+</div>
+
+<select id="font">
+
+<option value="Arial">Arial</option>
+<option value="Verdana">Verdana</option>
+<option value="Georgia">Georgia</option>
+<option value="Trebuchet MS">Trebuchet MS</option>
+<option value="Courier New">Courier New</option>
+<option value="Times New Roman">Times New Roman</option>
+<option value="Impact">Impact</option>
+
+</select>
+
+</div>
+
+
+<div class="setting">
+
+<b>🎨 Тема</b>
+
+<select id="theme">
+
+<option value="purple">Purple</option>
+<option value="green">Dark Green</option>
+<option value="dark">Dark</option>
+<option value="light">Light</option>
+
+</select>
+
+</div>
+
+
+<div class="setting">
+
+<b>📏 Размер текста</b>
+
+<select id="fontSize">
+
+<option value="14px">Маленький</option>
+<option value="15px">Обычный</option>
+<option value="17px">Большой</option>
+<option value="19px">Очень большой</option>
+
+</select>
+
+</div>
+
+
+<div class="setting">
+
+<b>💬 Функции как у ChatGPT</b>
+
+<div class="description">
+Дополнительные функции интерфейса.
+</div>
+
+</div>
+
+
+<div class="setting">
+
+<b>🚀 LunaSpaceLyos 1.9</b>
+
+<div class="description">
+MAX UPDATE<br>
+Rocket system
+</div>
+
+</div>
+
+</div>
+</div>
+
+
+<!-- GLOBAL PREMIUM ANIMATION -->
+
+<div class="giftOverlay" id="giftOverlay">
+
+<div class="giftContent">
+
+<div class="giftTitle">
+🎉 Поздравления! Всем выдали премиум! 🎉
+</div>
+
+<div class="gift">
+
+<div class="giftLid"></div>
+<div class="giftBody"></div>
+<div class="diamond">💎</div>
+
+</div>
+
+<div class="giftText">
+Premium активирован для всех пользователей!
+</div>
+
+<button class="skip" id="skipAnimation">
+⏭️ Пропустить
+</button>
+
+</div>
+
+</div>
+
+
+<script>
+
+/* ===============================
+   LYOS 1.9
+================================ */
+
+const $=id=>document.getElementById(id);
+
+
+/* USER */
+
+const userId=
+  localStorage.getItem("LYOS_USER") ||
+  (
+    crypto.randomUUID ?
+    crypto.randomUUID() :
+    Date.now()+"-"+Math.random()
+  );
+
+localStorage.setItem(
+  "LYOS_USER",
+  userId
+);
+
+
+/* DATA */
+
+let data={
+  stars:Number(
+    localStorage.getItem("LYOS_STARS")||0
+  ),
+  premium:
+    localStorage.getItem("LYOS_PREMIUM")==="true",
+  chats:JSON.parse(
+    localStorage.getItem("LYOS_CHATS")||"[]"
+  )
+};
+
+let activeChat=
+  localStorage.getItem("LYOS_ACTIVE");
+
+
+function save(){
+
+  localStorage.setItem(
+    "LYOS_STARS",
+    Math.floor(data.stars)
+  );
+
+  localStorage.setItem(
+    "LYOS_PREMIUM",
+    data.premium
+  );
+
+  localStorage.setItem(
+    "LYOS_CHATS",
+    JSON.stringify(data.chats)
+  );
+
+  if(activeChat){
+
+    localStorage.setItem(
+      "LYOS_ACTIVE",
+      activeChat
+    );
+
+  }
+
+}
+
+
+/* STAR SYSTEM */
+/* 1 second = 1 star */
+
+let lastStar=Date.now();
+
+setInterval(()=>{
+
+  const now=Date.now();
+
+  const seconds=
+    Math.floor(
+      (now-lastStar)/1000
+    );
+
+  if(seconds>0){
+
+    data.stars+=seconds;
+
+    lastStar+=seconds*1000;
+
+    save();
+
+    updatePremium();
+
+  }
+
+},1000);
+
+
+/* PREMIUM */
+
+function updatePremium(){
+
+  $("premiumStatus").textContent=
+    data.premium
+      ? "💎 Premium: активен"
+      : "💎 Premium: нет";
+
+  $("stars").textContent=
+    "⭐ "+
+    Math.floor(data.stars).toLocaleString();
+
+  $("giveAll").style.display=
+    data.premium
+      ? "block"
+      : "none";
+
+}
+
+
+$("buyPremium").onclick=()=>{
+
+  if(data.premium)
+    return;
+
+  if(data.stars<10000){
+
+    alert(
+      "Нужно 10 000 ⭐.\nСейчас: "+
+      Math.floor(data.stars)
+    );
+
+    return;
+  }
+
+  data.stars-=10000;
+  data.premium=true;
+
+  save();
+  updatePremium();
+
+};
+
+
+$("claimGift").onclick=()=>{
+
+  data.premium=true;
+
+  save();
+
+  updatePremium();
+
+  showGiftAnimation();
+
+};
+
+
+/* GLOBAL PREMIUM */
+
+$("giveAll").onclick=()=>{
+
+  if(!data.premium)
+    return;
+
+  if(!socket ||
+     socket.readyState!==WebSocket.OPEN){
+
+    alert(
+      "Сервер недоступен. Подключитесь к серверу."
+    );
+
+    return;
+  }
+
+  socket.send(
+    JSON.stringify({
+      type:"givePremiumAll",
+      userId:userId
+    })
+  );
+
+};
+
+
+/* ANIMATION */
+
+let animationTimer=null;
+
+function showGiftAnimation(){
+
+  $("giftOverlay")
+    .classList
+    .add("show");
+
+  clearTimeout(animationTimer);
+
+  animationTimer=
+    setTimeout(
+      skipAnimation,
+      10000
+    );
+
+}
+
+function skipAnimation(){
+
+  $("giftOverlay")
+    .classList
+    .remove("show");
+
+}
+
+$("skipAnimation").onclick=
+  skipAnimation;
+
+
+/* CHAT */
+
+function createChat(){
+
+  const id=
+    Date.now().toString(36)+
+    Math.random().toString(36).slice(2);
+
+  data.chats.unshift({
+
+    id:id,
+
+    title:
+      language==="en"
+      ? "New chat"
+      : "Новый чат",
+
+    messages:[]
+
+  });
+
+  activeChat=id;
+
+  save();
+
+  renderHistory();
+  renderChat();
+
+  $("sidebar")
+    .classList
+    .remove("open");
+
+  $("input").focus();
+
+}
+
+
+function getChat(){
+
+  return data.chats.find(
+    x=>x.id===activeChat
+  );
+
+}
+
+
+function renderHistory(){
+
+  $("history").innerHTML="";
+
+  data.chats.forEach(c=>{
+
+    const b=
+      document.createElement("button");
+
+    b.className="chat-item";
+
+    if(c.id===activeChat)
+      b.classList.add("active");
+
+    b.textContent=c.title;
+
+    b.onclick=()=>{
+
+      activeChat=c.id;
+
+      save();
+
+      renderHistory();
+      renderChat();
+
+      $("sidebar")
+        .classList
+        .remove("open");
+
+    };
+
+    $("history")
+      .appendChild(b);
+
+  });
+
+}
+
+
+/* AI */
+
+const replies={
+
+ru:[
+"Понял тебя! 🚀",
+"Хороший вопрос!",
+"Интересно 👀",
+"Я на связи.",
+"Сообщение получено!",
+"Давай разберёмся.",
+"Звучит круто 🔥"
+],
+
+en:[
+"Got it! 🚀",
+"Good question!",
+"Interesting 👀",
+"I'm here.",
+"Message received!",
+"Let's figure it out.",
+"Sounds cool 🔥"
+],
+
+uk:[
+"Зрозумів тебе! 🚀",
+"Гарне питання!",
+"Цікаво 👀",
+"Я на зв'язку.",
+"Повідомлення отримано!",
+"Давай розберемося.",
+"Звучить круто 🔥"
+],
+
+de:[
+"Verstanden! 🚀",
+"Gute Frage!",
+"Interessant 👀",
+"Ich bin da.",
+"Nachricht erhalten!",
+"Lass uns das klären.",
+"Klingt cool 🔥"
+],
+
+es:[
+"¡Entendido! 🚀",
+"¡Buena pregunta!",
+"Interesante 👀",
+"Estoy aquí.",
+"¡Mensaje recibido!",
+"Vamos a resolverlo.",
+"¡Suena genial 🔥!"
+]
+
+};
+
+
+function aiReply(){
+
+  const list=
+    replies[language]||replies.ru;
+
+  return list[
+    Math.floor(
+      Math.random()*list.length
+    )
+  ];
+
+}
+
+
+/* MESSAGE */
+
+function addMessage(
+  role,
+  text,
+  store=true
+){
+
+  const welcome=
+    $("messages")
+    .querySelector(".welcome");
+
+  if(welcome)
+    welcome.remove();
+
+  const div=
+    document.createElement("div");
+
+  div.className=
+    "message";
+
+  if(role==="user"){
+
+    const bubble=
+      document.createElement("div");
+
+    bubble.className="userBubble";
+
+    bubble.textContent=text;
+
+    div.appendChild(bubble);
+
+  }else{
+
+    const textDiv=
+      document.createElement("div");
+
+    textDiv.className=
+      "messageText";
+
+    textDiv.textContent=text;
+
+    div.appendChild(textDiv);
+
+    const actions=
+      document.createElement("div");
+
+    actions.className="actions";
+
+    const copy=
+      document.createElement("button");
+
+    copy.className="action";
+    copy.textContent="Copy";
+
+    copy.onclick=async()=>{
+
+      try{
+
+        await navigator.clipboard
+          .writeText(text);
+
+        copy.textContent="Copied!";
+
+        setTimeout(
+          ()=>copy.textContent="Copy",
+          1000
+        );
+
+      }catch(e){}
+
+    };
+
+    actions.appendChild(copy);
+
+    div.appendChild(actions);
+
+  }
+
+  $("messages")
+    .appendChild(div);
+
+  if(store){
+
+    const c=getChat();
+
+    if(c){
+
+      c.messages.push({
+        role:role,
+        text:text
+      });
+
+      save();
+
+    }
+
+  }
+
+  $("chat").scrollTop=
+    $("chat").scrollHeight;
+
+}
+
+
+function renderChat(){
+
+  $("messages").innerHTML="";
+
+  const c=getChat();
+
+  if(!c || c.messages.length===0){
+
+    const welcome=
+      document.createElement("div");
+
+    welcome.className="welcome";
+
+    welcome.innerHTML=`
+      <div>
+        <h1>LunaSpaceLyos</h1>
+        <p>Lyos 1.9 • MAX UPDATE 🚀</p>
+      </div>
+    `;
+
+    $("messages")
+      .appendChild(welcome);
+
+    return;
+
+  }
+
+  c.messages.forEach(m=>{
+
+    addMessage(
+      m.role,
+      m.text,
+      false
+    );
+
+  });
+
+}
+
+
+/* SEND */
+
+function sendMessage(){
+
+  const text=
+    $("input")
+      .value
+      .trim();
+
+  if(!text)
+    return;
+
+  if(!getChat())
+    createChat();
+
+  const c=getChat();
+
+  addMessage(
+    "user",
+    text,
+    true
+  );
+
+  $("input").value="";
+  $("input").style.height="38px";
+
+
+  setTimeout(()=>{
+
+    addMessage(
+      "assistant",
+      aiReply(),
+      true
+    );
+
+  }, data.premium ? 150 : 700);
+
+
+  if(c.messages.length===1){
+
+    c.title=
+      text.slice(0,35);
+
+    save();
+
+    renderHistory();
+
+  }
+
+}
+
+
+$("send").onclick=
+  sendMessage;
+
+
+$("input").addEventListener(
+  "keydown",
+  e=>{
+
+    if(
+      e.key==="Enter" &&
+      !e.shiftKey
+    ){
+
+      e.preventDefault();
+
+      sendMessage();
+
+    }
+
+  }
+);
+
+
+$("input").addEventListener(
+  "input",
+  ()=>{
+
+    $("input").style.height=
+      "38px";
+
+    $("input").style.height=
+      Math.min(
+        $("input").scrollHeight,
+        140
+      )+"px";
+
+  }
+);
+
+
+/* SETTINGS */
+
+function openSettings(){
+
+  $("overlay")
+    .classList
+    .add("open");
+
+}
+
+function closeSettings(){
+
+  $("overlay")
+    .classList
+    .remove("open");
+
+}
+
+$("settingsButton").onclick=
+  openSettings;
+
+$("closeSettings").onclick=
+  closeSettings;
+
+$("overlay").onclick=e=>{
+
+  if(e.target===$("overlay"))
+    closeSettings();
+
+};
+
+document.addEventListener(
+  "keydown",
+  e=>{
+
+    if(e.key==="Escape")
+      closeSettings();
+
+  }
+);
+
+
+/* MOBILE MENU */
+
+$("menu").onclick=()=>{
+
+  $("sidebar")
+    .classList
+    .toggle("open");
+
+};
+
+
+/* FONT SYSTEM */
+/*
+  Вся система построена через CSS variable.
+  Меняется --font у :root,
+  поэтому inherit автоматически проходит
+  через весь интерфейс.
+*/
+
+const font=
+  localStorage.getItem(
+    "LYOS_FONT"
+  )||"Arial";
+
+$("font").value=font;
+
+function applyFont(value){
+
+  document.documentElement
+    .style
+    .setProperty(
+      "--font",
+      `"${value}", sans-serif`
+    );
+
+  localStorage.setItem(
+    "LYOS_FONT",
+    value
+  );
+
+}
+
+applyFont(font);
+
+$("font").onchange=()=>{
+
+  applyFont(
+    $("font").value
+  );
+
+};
+
+
+/* FONT SIZE */
+
+const size=
+  localStorage.getItem(
+    "LYOS_SIZE"
+  )||"15px";
+
+$("fontSize").value=size;
+
+function applySize(value){
+
+  document.documentElement
+    .style
+    .setProperty(
+      "--chat-size",
+      value
+    );
+
+  $("input").style.fontSize=value;
+
+  document.querySelectorAll(
+    ".messageText,.userBubble"
+  ).forEach(x=>{
+
+    x.style.fontSize=value;
+
+  });
+
+  localStorage.setItem(
+    "LYOS_SIZE",
+    value
+  );
+
+}
+
+applySize(size);
+
+$("fontSize").onchange=()=>{
+
+  applySize(
+    $("fontSize").value
+  );
+
+};
+
+
+/* THEME */
+
+$("theme").onchange=()=>{
+
+  const value=
+    $("theme").value;
+
+  if(value==="green"){
+
+    document.documentElement
+      .style
+      .setProperty(
+        "--bg",
+        "#07140e"
+      );
+
+    document.documentElement
+      .style
+      .setProperty(
+        "--side",
+        "#06100b"
+      );
+
+    document.documentElement
+      .style
+      .setProperty(
+        "--accent",
+        "#21b66f"
+      );
+
+  }
+
+  else if(value==="dark"){
+
+    document.documentElement
+      .style
+      .setProperty(
+        "--bg",
+        "#151515"
+      );
+
+    document.documentElement
+      .style
+      .setProperty(
+        "--side",
+        "#0e0e0e"
+      );
+
+  }
+
+  else if(value==="light"){
+
+    document.documentElement
+      .style
+      .setProperty(
+        "--bg",
+        "#f4f1f6"
+      );
+
+    document.documentElement
+      .style
+      .setProperty(
+        "--side",
+        "#ffffff"
+      );
+
+    document.documentElement
+      .style
+      .setProperty(
+        "--text",
+        "#16121a"
+      );
+
+  }
+
+  else{
+
+    document.documentElement
+      .style
+      .setProperty(
+        "--bg",
+        "#171020"
+      );
+
+    document.documentElement
+      .style
+      .setProperty(
+        "--side",
+        "#100b16"
+      );
+
+    document.documentElement
+      .style
+      .setProperty(
+        "--accent",
+        "#9b62ff"
+      );
+
+  }
+
+};
+
+
+/* LANGUAGE */
+
+let language=
+  localStorage.getItem(
+    "LYOS_LANGUAGE"
+  )||"ru";
+
+$("language").value=language;
+
+$("language").onchange=()=>{
+
+  language=
+    $("language").value;
+
+  localStorage.setItem(
+    "LYOS_LANGUAGE",
+    language
+  );
+
+  applyLanguage();
+
+};
+
+
+function applyLanguage(){
+
+  const en=
+    language==="en";
+
+  const uk=
+    language==="uk";
+
+  const de=
+    language==="de";
+
+  const es=
+    language==="es";
+
+  $("newChat").textContent=
+    en?"＋ New chat":
+    uk?"＋ Новий чат":
+    de?"＋ Neuer Chat":
+    es?"＋ Nuevo chat":
+    "＋ Новый чат";
+
+  $("historyTitle").textContent=
+    en?"Chats":
+    uk?"Чати":
+    de?"Chats":
+    es?"Chats":
+    "Чаты";
+
+  $("settingsButton").textContent=
+    en?"⚙️ Settings":
+    uk?"⚙️ Налаштування":
+    de?"⚙️ Einstellungen":
+    es?"⚙️ Ajustes":
+    "⚙️ Настройки";
+
+  $("input").placeholder=
+    en?"Write...":
+    uk?"Пиши...":
+    de?"Schreiben...":
+    es?"Escribe...":
+    "Пиши...";
+
+  updatePremium();
+
+}
+
+
+/* WEBSOCKET */
+
+let socket=null;
+
+function connectServer(){
+
+  const protocol=
+    location.protocol==="https:"
+      ? "wss:"
+      : "ws:";
+
+  const port=
+    location.port
+      ? ":"+location.port
+      : "";
+
+  try{
+
+    socket=
+      new WebSocket(
+        protocol+
+        "//"+
+        location.hostname+
+        port
+      );
+
+    socket.onopen=()=>{
+
+      console.log(
+        "Lyos 1.9 server connected"
+      );
+
+    };
+
+    socket.onmessage=e=>{
+
+      let message;
+
+      try{
+        message=
+          JSON.parse(e.data);
+      }catch{
+        return;
+      }
+
+
+      /* GLOBAL PREMIUM */
+
+      if(
+        message.type===
+        "premiumAll"
+      ){
+
+        data.premium=true;
+
+        save();
+
+        updatePremium();
+
+        showGiftAnimation();
+
+      }
+
+    };
+
+    socket.onclose=()=>{
+
+      setTimeout(
+        connectServer,
+        3000
+      );
+
+    };
+
+  }catch(e){
+
+    console.log(
+      "Server unavailable"
+    );
+
+  }
+
+}
+
+
+/* INIT */
+
+if(!data.chats.length){
+
+  createChat();
+
+}else{
+
+  if(
+    !data.chats.some(
+      c=>c.id===activeChat
+    )
+  ){
+
+    activeChat=
+      data.chats[0].id;
+
+  }
+
+  renderHistory();
+  renderChat();
+
+}
+
+applyLanguage();
+updatePremium();
+connectServer();
+save();
+
+</script>
+
+</body>
+  </html>
